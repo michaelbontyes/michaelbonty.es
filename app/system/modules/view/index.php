@@ -1,5 +1,6 @@
 <?php
 
+use Pagekit\Util\ArrObject;
 use Pagekit\View\Event\ResponseListener;
 
 return [
@@ -7,14 +8,6 @@ return [
     'name' => 'system/view',
 
     'main' => function ($app) {
-
-        $app->extend('view', function ($view) use ($app) {
-
-            $view->defer('head');
-            $view->meta(['generator' => 'Pagekit']);
-
-            return $view;
-        });
 
         $app->extend('twig', function ($twig) use ($app) {
 
@@ -48,15 +41,15 @@ return [
 
         'site' => function ($event, $app) {
             $app->on('view.meta', function ($event, $meta) use ($app) {
-
-                $route = $app['url']->get($app['request']->attributes->get('_route'), $app['request']->attributes->get('_route_params', []), true);
-
-                if ($route != $app['request']->getSchemeAndHttpHost().$app['request']->getRequestUri()) {
-                    $meta->add('canonical', $route);
-                }
-
-            });
+                $meta->add('canonical', $app['url']->get($app['request']->attributes->get('_route'), $app['request']->attributes->get('_route_params', []), 0));
+            }, 60);
         },
+
+        'view.init' => [function ($event, $view) {
+            $view->defer('head');
+            $view->meta(['generator' => 'Pagekit']);
+            $view->addGlobal('params', new ArrObject());
+        }, 20],
 
         'view.data' => function ($event, $data) use ($app) {
             $data->add('$pagekit', [
@@ -76,15 +69,19 @@ return [
             $scripts->register('lodash', 'app/assets/lodash/lodash.min.js');
             $scripts->register('marked', 'app/assets/marked/marked.js');
             $scripts->register('uikit', 'app/assets/uikit/js/uikit.min.js', 'jquery');
+            $scripts->register('uikit-accordion', 'app/assets/uikit/js/components/accordion.min.js', 'uikit');
             $scripts->register('uikit-autocomplete', 'app/assets/uikit/js/components/autocomplete.min.js', 'uikit');
             $scripts->register('uikit-datepicker', 'app/assets/uikit/js/components/datepicker.min.js', 'uikit');
             $scripts->register('uikit-form-password', 'app/assets/uikit/js/components/form-password.min.js', 'uikit');
             $scripts->register('uikit-form-select', 'app/assets/uikit/js/components/form-select.min.js', 'uikit');
+            $scripts->register('uikit-grid', 'app/assets/uikit/js/components/grid.min.js', 'uikit');
             $scripts->register('uikit-htmleditor', 'app/assets/uikit/js/components/htmleditor.min.js', ['uikit', 'marked', 'codemirror']);
             $scripts->register('uikit-nestable', 'app/assets/uikit/js/components/nestable.min.js', 'uikit');
             $scripts->register('uikit-notify', 'app/assets/uikit/js/components/notify.min.js', 'uikit');
             $scripts->register('uikit-tooltip', 'app/assets/uikit/js/components/tooltip.min.js', 'uikit');
             $scripts->register('uikit-pagination', 'app/assets/uikit/js/components/pagination.min.js', 'uikit');
+            $scripts->register('uikit-slider', 'app/assets/uikit/js/components/slider.min.js', 'uikit');
+            $scripts->register('uikit-slideshow', 'app/assets/uikit/js/components/slideshow.min.js', 'uikit');
             $scripts->register('uikit-sortable', 'app/assets/uikit/js/components/sortable.min.js', 'uikit');
             $scripts->register('uikit-sticky', 'app/assets/uikit/js/components/sticky.min.js', 'uikit');
             $scripts->register('uikit-upload', 'app/assets/uikit/js/components/upload.min.js', 'uikit');
@@ -93,7 +90,7 @@ return [
             $scripts->register('uikit-timepicker', 'app/assets/uikit/js/components/timepicker.js', 'uikit-autocomplete');
             $scripts->register('vue', 'app/system/app/bundle/vue.js', ['vue-dist', 'jquery', 'lodash', 'locale']);
             $scripts->register('vue-dist', 'app/assets/vue/dist/' . ($app->debug() ? 'vue.js' : 'vue.min.js'));
-            $scripts->register('locale', $app->url('@system/intl', ['locale' => $app->module('system/intl')->getLocale()]), [], ['type' => 'url']);
+            $scripts->register('locale', $app->url('@system/intl', ['locale' => $app->module('system/intl')->getLocale(), 'v' => $scripts->getFactory()->getVersion()]), [], ['type' => 'url']);
         }
 
     ]

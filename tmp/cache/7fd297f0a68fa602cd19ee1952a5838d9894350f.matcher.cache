@@ -283,6 +283,11 @@ class UrlMatcher7fd297f0a68fa602cd19ee1952a5838d9894350f extends Symfony\Compone
                     return array (  '_controller' => 'Pagekit\\Dashboard\\Controller\\DashboardController::reorderAction',  '_request' =>   array (    'value' =>     array (      'order' => 'array',    ),    'csrf' => true,  ),  '_access' =>   array (    0 => 'system: access admin area',  ),  '_route' => '@dashboard/reorder',);
                 }
 
+                // @dashboard/weather
+                if ($pathinfo === '/admin/dashboard/weather') {
+                    return array (  '_controller' => 'Pagekit\\Dashboard\\Controller\\DashboardController::weatherAction',  '_request' =>   array (    'value' =>     array (      'data' => 'array',      'action' => 'string',    ),  ),  '_access' =>   array (    0 => 'system: access admin area',  ),  '_route' => '@dashboard/weather',);
+                }
+
             }
 
         }
@@ -656,7 +661,7 @@ class UrlMatcher7fd297f0a68fa602cd19ee1952a5838d9894350f extends Symfony\Compone
 
                     // @user/resetpassword/request
                     if ($pathinfo === '/user/resetpassword/request') {
-                        return array (  '_controller' => 'Pagekit\\User\\Controller\\ResetPasswordController::requestAction',  '_request' =>   array (    'value' =>     array (      0 => 'email',    ),  ),  '_route' => '@user/resetpassword/request',);
+                        return array (  '_controller' => 'Pagekit\\User\\Controller\\ResetPasswordController::requestAction',  '_request' =>   array (    'value' =>     array (      'email' => 'string',    ),  ),  '_route' => '@user/resetpassword/request',);
                     }
 
                     // @user/resetpassword/confirm

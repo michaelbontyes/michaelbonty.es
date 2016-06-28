@@ -15,13 +15,18 @@ module.exports = function (_, types) {
                 type: 'text',
                 label: '',
                 attrs: {},
-                options: []
+                options: [],
+                default: undefined
             }, this.config);
         },
 
         created: function () {
-            this.$set('key', '["' + this.name.replace('.', '"]["') + '"]');
+            this.$set('key', '["' + this.name.replace(/\./g, '"]["') + '"]');
             this.attrs.class = this.attrs.class || this.class;
+
+            if (_.isUndefined(this.value) && !_.isUndefined(this.default)) {
+                this.value = this.default;
+            }
         },
 
         computed: {

@@ -12,14 +12,14 @@ var merge = require('merge-stream'),
     less = require('gulp-less'),
     rename = require('gulp-rename'),
     eslint = require('gulp-eslint'),
+    plumber = require('gulp-plumber'),
     fs = require('fs'),
     path = require('path');
 
 // paths of the packages for the compile-task
 var pkgs = [
     {path: 'app/installer/', data: '../../composer.json'},
-    {path: 'app/system/modules/theme/', data: '../../../../composer.json'},
-    {path: 'packages/pagekit/theme-one/', data: 'composer.json'}
+    {path: 'app/system/modules/theme/', data: '../../../../composer.json'}
 ];
 
 // banner for the css files
@@ -33,7 +33,13 @@ var cldr = {
     languages: path.join(__dirname, 'app/system/languages/')
 };
 
-gulp.task('default', ['compile', 'cldr']);
+// general error handler for plumber
+var errhandler = function (error) {
+    this.emit('end');
+    return console.error(error.toString());
+};
+
+gulp.task('default', ['compile']);
 
 /**
  * Compile all less files
@@ -46,6 +52,7 @@ gulp.task('compile', function () {
 
     return merge.apply(null, pkgs.map(function (pkg) {
         return gulp.src(pkg.path + '**/less/*.less', {base: pkg.path})
+            .pipe(plumber(errhandler))
             .pipe(less({compress: true, relativeUrls: true}))
             .pipe(header(banner, {data: require('./' + pkg.path + pkg.data)}))
             .pipe(rename(function (file) {
